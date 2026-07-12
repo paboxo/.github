@@ -258,15 +258,21 @@ explorer](https://ccip.chain.link/msg/0xad980bdd88ef563baefc3dd54df92a4917af72c1
 
 ---
 
-## ⏱️ 3-minute judge path
+## ⏱️ Try it yourself — three minutes, start to finish
 
-1. Open the [live app](https://paboxo.xyz/) and connect a wallet on **HashKey Chain mainnet 177**.
-2. Supply collateral and borrow from a Paboxo market.
-3. Click **Enable protection** and complete the HSP USDC.e payment.
-4. Open the HSP Explorer receipt showing **`ACCEPT`**.
-5. Grant **rebalance-delegation**.
-6. Watch the keeper verify the mandate + receipt and run a simulated rebalance cycle — with the DGRID
-   explanation attached.
+You do not have to take any of this on faith. The whole loop is live, and you can walk it end to end.
+
+| | | |
+|---|---|---|
+| **1** | **Open the app** | [paboxo.xyz](https://paboxo.xyz/) — connect a wallet on HashKey Chain mainnet 177. |
+| **2** | **Take a position** | Supply collateral, borrow pxUSDT. Your collateral lands in a `Position` contract that only you own. |
+| **3** | **Turn on protection** | One click. Pay the fee in USDC.e through HSP, straight from your wallet — nothing is ever held for you. |
+| **4** | **Get your receipt** | HSP returns a signed `ACCEPT`, with the full decision trace. This is the proof the keeper will demand later. |
+| **5** | **Hand over the keys — just one** | Grant rebalance-delegation on-chain. It permits exactly one thing: rotating collateral *inside* your position. Revoke it whenever you like. |
+| **6** | **Watch it think** | The keeper re-verifies your receipt against the signed mandate, reads your health factor, sizes the fix, and tells you — in plain language — what it would do and why. |
+
+Step 6 is the one worth staying for. Most protocols show you a liquidation *after* it has happened.
+This one shows you the reasoning *before* it would have.
 
 ---
 
