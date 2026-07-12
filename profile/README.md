@@ -330,9 +330,64 @@ protection, or DAO-funded protection for strategic markets.
 
 ## 🛠️ Tech stack
 
-`Solidity` · `Foundry` · `TypeScript` · `viem` · `Mastra` · `React` · `Vite` · `wagmi` ·
-`Ponder` · [`HSP`](https://hashfans.io/) · [`DGRID AI`](https://dgrid.ai/) · `Chainlink CCIP` ·
-`DODO V2 DPP` · **HashKey Chain mainnet 177**
+Everything runs against **HashKey Chain mainnet 177** (`https://mainnet.hsk.xyz`).
+
+### ⛓️ `paboxo-sc` — smart contracts
+
+| Layer | What we use |
+|---|---|
+| Language | **Solidity `^0.8.30`** (a few interfaces on `^0.8.20`) |
+| Toolchain | **Foundry** — `forge` · `cast` · `anvil`. Optimizer on, `runs = 200` (mandatory: `LendingPoolDeployer` embeds `LendingPool`'s full creation code) |
+| Libraries | **OpenZeppelin Contracts** + **Contracts-Upgradeable** — UUPS proxies, AccessControl · `forge-std` · `chainlink-ccip` |
+| Oracles | `TokenDataStream` registry with Chainlink-shaped `latestRoundData` → `PushOracleFeed` · `ConstantPriceFeed` · `SupraPriceFeed` |
+| DEX | `DODOAdapter` → **DODO V2 DPP** (PMM) pools |
+| Cross-chain | **Chainlink CCIP** — Burn & Mint token pools, Base ↔ HashKey |
+| Tests | **`forge test` — 170 passing**, [CI green](https://github.com/paboxo/paboxo-sc/actions/runs/29166135756). Unit + fork tests (fork gated by `RUN_FORK`) |
+
+### ⚙️ `paboxo-keeper` — off-chain keepers & AI
+
+A **pnpm workspace monorepo**. Shared toolchain: **Node ≥ 22** · **pnpm 11.6** · **TypeScript 5.7**
+(run directly via `tsx`, no build step) · **Biome 2.5** (lint + format, not ESLint/Prettier) ·
+**Vitest 2.1**.
+
+| Package | Stack |
+|---|---|
+| **`keeper-core`** *(library)* | **viem 2.21** (chain client, reads, guarded writes, simulate-before-send) · **zod 3.24** (config validation + secret redaction) · **pino 9.5** (logging) · the shared `safety.ts` guard and on-chain address book |
+| **`oracle-cron`** | viem · **`@chainlink/data-streams-sdk` 1.2** for the price source · exchange price feeds as fallback · pushes 8-dp USD prices before the 1-hour staleness window closes |
+| **`market-maker`** | viem · reads `TokenDataStream`, re-pegs each **DODO DPP** guide price via `resetDODOPrivatePool` — price only, zero liquidity moved |
+| **`ai-workflow`** *(the Rebalance Agent)* | **Mastra `@mastra/core` 1.50** (7-step Workflow) · **[DGRID AI](https://dgrid.ai/)** gateway for reasoning · **Hono 4.12** + `@hono/zod-openapi` + Swagger UI (public read-only REST API) · **better-sqlite3 11.8** (WAL store for cycles / actions / alerts) · **Inngest 4.12** (optional durable cron) · **`@hsp/core` + `@hsp/sdk`** (vendored) for the payment gate |
+| **`liquidation-bot`** | viem · better-sqlite3 (self-indexes borrowers with a block checkpoint) |
+| Deployment | **GitHub Actions** job DAG → tests gate `rsync` to a **VPS** → three **systemd** units (`paboxo-oracle`, `paboxo-market-maker`, `paboxo-rebalance`), all `Restart=always` |
+
+### 📊 `paboxo-indexer` — event indexing
+
+| Layer | What we use |
+|---|---|
+| Framework | **Ponder 0.16** on **Bun** |
+| Chain access | **viem 2.21**, round-robin transport across up to 3 RPC endpoints |
+| Database | **Postgres** in production (`pg` 8) · PGlite in dev |
+| API | **Ponder GraphQL** + SQL-over-HTTP, plus custom REST routes on **Hono 4.5** (`/pools`, `/pools/:pool/rate`) |
+| Coverage | 6 singleton contracts + 5 factory-templated dynamic contracts → **75 entities** |
+
+### 🖥️ `paboxo-fe` — the app
+
+| Layer | What we use |
+|---|---|
+| Framework | **TanStack Start** — React **19.2**, file-based TanStack Router, **Nitro 3** for SSR, **Vite 8**, **TypeScript 6** |
+| Web3 | **wagmi 3** + **viem 2.54** + **Reown AppKit 1.8** (WalletConnect). HashKey 177 is the only configured network |
+| Data | **TanStack Query 5** · GraphQL against `paboxo-indexer` · ABIs extracted from `forge build` |
+| Payments | **`@hsp/core` + `@hsp/sdk`** (vendored) — HSP payment flow + protection panel |
+| UI | **Tailwind CSS 4** · hand-rolled component kit (no shadcn) · `lucide-react` · **Recharts 3** for the IRM / rate / liquidity charts |
+| Tests | **Vitest 4** + Testing Library + jsdom — **428 passing** |
+| Deployment | **Vercel** |
+
+### 🌐 `paboxo-landingpage`
+
+| Layer | What we use |
+|---|---|
+| Framework | **TanStack Start** · React 19 · Vite 8 · Tailwind 4 |
+| 3D & motion | **Three.js 0.173** · **React Three Fiber 9** · **Drei 10** · **GSAP 3.12** (scroll-driven) |
+| State | **Zustand 5** |
 
 ---
 
