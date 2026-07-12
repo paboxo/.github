@@ -125,7 +125,7 @@ sequenceDiagram
     participant K as ⚙️ Keepers
     participant AI as 🤖 Rebalance Agent
 
-    rect rgb(22, 27, 34)
+    rect rgba(128, 142, 158, 0.12)
     Note over U,POS: Open a position
     U->>FE: supply collateral, borrow pxUSDT
     FE->>LP: supplyCollateral() · borrowDebt()
@@ -133,20 +133,20 @@ sequenceDiagram
     LP-->>FE: HF = 1.42 ✅
     end
 
-    rect rgb(43, 33, 12)
+    rect rgba(219, 171, 10, 0.14)
     Note over U,LP: Pay to protect
     U->>HSP: pay fee in USDC.e — from your own wallet
     HSP-->>U: ACCEPT receipt + decision trace
     U->>LP: approveRebalanceDelegation(keeper)
     end
 
-    rect rgb(45, 27, 27)
+    rect rgba(248, 81, 73, 0.13)
     Note over K,DEX: The market moves against you
     K->>LP: setPrice() — collateral drops
     K->>DEX: resetDODOPrivatePool() — re-peg to oracle
     end
 
-    rect rgb(13, 43, 78)
+    rect rgba(31, 111, 235, 0.14)
     Note over AI,POS: The agent acts before the liquidator
     AI->>LP: read health factor
     LP-->>AI: HF = 1.09 ⚠️ (below 1.15)
@@ -160,7 +160,7 @@ sequenceDiagram
     LP-->>AI: HF = 1.31 ✅ restored
     end
 
-    rect rgb(15, 45, 28)
+    rect rgba(46, 160, 67, 0.14)
     Note over AI,U: You never got liquidated
     AI->>FE: DGRID explanation — "why I did this"
     FE-->>U: position safe · funds never left
